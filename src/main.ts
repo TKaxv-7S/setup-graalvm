@@ -18,6 +18,7 @@ import {exec} from '@actions/exec'
 async function run(): Promise<void> {
   try {
     const javaVersion = core.getInput(c.INPUT_JAVA_VERSION, {required: true})
+    const javaPackage = core.getInput(c.INPUT_JAVA_PACKAGE)
     const distribution = core.getInput(c.INPUT_DISTRIBUTION)
     const graalVMVersion = core.getInput(c.INPUT_VERSION)
     const gdsToken = core.getInput(c.INPUT_GDS_TOKEN)
