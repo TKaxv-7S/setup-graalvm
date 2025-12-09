@@ -9,10 +9,16 @@ const LIBERICA_JDK_TAG_PREFIX = 'jdk-'
 const LIBERICA_VM_PREFIX = 'bellsoft-liberica-vm-'
 
 export async function setUpLiberica(javaVersion: string, javaPackage: string): Promise<string> {
-  const resolvedJavaVersion = await findLatestLibericaJavaVersion(javaVersion)
-  const downloadUrl = await findLibericaURL(resolvedJavaVersion, javaPackage)
   const toolName = determineToolName(javaVersion, javaPackage)
-  return downloadExtractAndCacheJDK(async () => downloadFile(downloadUrl), toolName, javaVersion)
+  return downloadExtractAndCacheJDK(
+    async () => {
+      const resolvedJavaVersion = await findLatestLibericaJavaVersion(javaVersion)
+      const downloadUrl = await findLibericaURL(resolvedJavaVersion, javaPackage)
+      return downloadFile(downloadUrl)
+    },
+    toolName,
+    javaVersion
+  )
 }
 
 export async function findLatestLibericaJavaVersion(javaVersion: string): Promise<string> {
@@ -66,7 +72,7 @@ export async function findLibericaURL(javaVersion: string, javaPackage: string):
 function determineToolName(javaVersion: string, javaPackage: string) {
   const variant = determineVariantPart(javaPackage)
   const platform = determinePlatformPart()
-  return `${LIBERICA_VM_PREFIX}${variant}${platform}`
+  return `${LIBERICA_VM_PREFIX}${variant}openjdk${javaVersion}-${platform}`
 }
 
 function determineVariantPart(javaPackage: string) {

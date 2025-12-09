@@ -38711,7 +38711,7 @@ async function downloadExtractAndCacheJDK(downloader, toolName, version) {
  * See #195 and https://github.com/actions/toolkit/blob/6b63a2bfc339a753a113d2266323a4d52d84dee0/packages/tool-cache/src/tool-cache.ts#L44
  */
 async function downloadFile(downloadUrl) {
-    const dest = join(_getTempDirectory(), crypto.randomUUID(), extname(downloadUrl));
+    const dest = join(_getTempDirectory(), '10000000-1000-4000-8000-100000000000', extname(downloadUrl));
     return toolCacheExports.downloadTool(downloadUrl, dest);
 }
 function _getTempDirectory() {
@@ -38769,10 +38769,10 @@ function getOctokit() {
     const GitHubWithPlugins = utilsExports.GitHub.plugin();
     const token = coreExports.getInput(INPUT_GITHUB_TOKEN);
     if (token) {
-        return new GitHubWithPlugins({ auth: `token ${token}` });
+        return new GitHubWithPlugins({ auth: `token ${token}`, baseUrl: `https://api.github.com` });
     }
     else {
-        return new GitHubWithPlugins(); /* unauthenticated */
+        return new GitHubWithPlugins({ baseUrl: `https://api.github.com` }); /* unauthenticated */
     }
 }
 function tmpfile(fileName) {
@@ -93591,10 +93591,12 @@ const LIBERICA_RELEASES_REPO = 'LibericaNIK';
 const LIBERICA_JDK_TAG_PREFIX = 'jdk-';
 const LIBERICA_VM_PREFIX = 'bellsoft-liberica-vm-';
 async function setUpLiberica(javaVersion, javaPackage) {
-    const resolvedJavaVersion = await findLatestLibericaJavaVersion(javaVersion);
-    const downloadUrl = await findLibericaURL(resolvedJavaVersion, javaPackage);
     const toolName = determineToolName(javaVersion, javaPackage);
-    return downloadExtractAndCacheJDK(async () => downloadFile(downloadUrl), toolName, javaVersion);
+    return downloadExtractAndCacheJDK(async () => {
+        const resolvedJavaVersion = await findLatestLibericaJavaVersion(javaVersion);
+        const downloadUrl = await findLibericaURL(resolvedJavaVersion, javaPackage);
+        return downloadFile(downloadUrl);
+    }, toolName, javaVersion);
 }
 async function findLatestLibericaJavaVersion(javaVersion) {
     const matchingRefs = await getMatchingTags(LIBERICA_GH_USER, LIBERICA_RELEASES_REPO, `${LIBERICA_JDK_TAG_PREFIX}${javaVersion}`);
@@ -93631,7 +93633,7 @@ async function findLibericaURL(javaVersion, javaPackage) {
 function determineToolName(javaVersion, javaPackage) {
     const variant = determineVariantPart(javaPackage);
     const platform = determinePlatformPart();
-    return `${LIBERICA_VM_PREFIX}${variant}${platform}`;
+    return `${LIBERICA_VM_PREFIX}${variant}openjdk${javaVersion}-${platform}`;
 }
 function determineVariantPart(javaPackage) {
     return javaPackage !== null && javaPackage.includes('+fx') ? 'full-' : '';

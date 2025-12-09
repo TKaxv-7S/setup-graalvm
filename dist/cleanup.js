@@ -91384,10 +91384,10 @@ function getOctokit() {
     const GitHubWithPlugins = utilsExports.GitHub.plugin();
     const token = coreExports.getInput(INPUT_GITHUB_TOKEN);
     if (token) {
-        return new GitHubWithPlugins({ auth: `token ${token}` });
+        return new GitHubWithPlugins({ auth: `token ${token}`, baseUrl: `https://api.github.com` });
     }
     else {
-        return new GitHubWithPlugins(); /* unauthenticated */
+        return new GitHubWithPlugins({ baseUrl: `https://api.github.com` }); /* unauthenticated */
     }
 }
 async function findExistingPRCommentId(bodyStartsWith) {

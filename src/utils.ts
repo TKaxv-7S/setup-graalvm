@@ -93,7 +93,7 @@ export async function downloadExtractAndCacheJDK(
  * See #195 and https://github.com/actions/toolkit/blob/6b63a2bfc339a753a113d2266323a4d52d84dee0/packages/tool-cache/src/tool-cache.ts#L44
  */
 export async function downloadFile(downloadUrl: string): Promise<string> {
-  const dest = join(_getTempDirectory(), crypto.randomUUID(), extname(downloadUrl))
+  const dest = join(_getTempDirectory(), '10000000-1000-4000-8000-100000000000', extname(downloadUrl))
   return tc.downloadTool(downloadUrl, dest)
 }
 
@@ -156,9 +156,9 @@ function getOctokit(): InstanceType<typeof GitHub> {
   const GitHubWithPlugins = GitHub.plugin()
   const token = core.getInput(c.INPUT_GITHUB_TOKEN)
   if (token) {
-    return new GitHubWithPlugins({ auth: `token ${token}` })
+    return new GitHubWithPlugins({ auth: `token ${token}`, baseUrl: `https://api.github.com` })
   } else {
-    return new GitHubWithPlugins() /* unauthenticated */
+    return new GitHubWithPlugins({ baseUrl: `https://api.github.com` }) /* unauthenticated */
   }
 }
 
